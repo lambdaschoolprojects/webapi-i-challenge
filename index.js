@@ -99,15 +99,19 @@ server.put("/api/users/:id", (req, res) => {
 if (process.env.NODE_ENV === "production") {
   // Express will serve up production assests
   // like our main.js file or main.css
-  app.use(express.static("user-app/build"));
+  try {
+    server.use(express.static("user-app/build"));
 
-  // Express will serve up the index.html file
-  // if it doesn't recognize the route
-  const path = require("path");
-  app.get("*", (req, res) => {
-    console.log("Made it here");
-    res.sendFile(path.resolve(__dirname, "user-app", "build", "index.html"));
-  });
+    // Express will serve up the index.html file
+    // if it doesn't recognize the route
+    const path = require("path");
+    server.get("*", (req, res) => {
+      console.log("Made it here");
+      res.sendFile(path.resolve(__dirname, "user-app", "build", "index.html"));
+    });
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 server.listen(PORT, () => {
