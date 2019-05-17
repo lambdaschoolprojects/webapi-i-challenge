@@ -8,6 +8,8 @@ const db = require("./data/db.js");
 server.use(express.json());
 server.use(cors());
 
+const PORT = process.env.PORT || 8080;
+
 server.get("/api/users/", (req, res) => {
   //console.log(res)
   db.find()
@@ -46,11 +48,9 @@ server.post("/api/users/", (req, res) => {
     db.insert(req.body)
       .then(newUser => res.status(201).json(newUser))
       .catch(err =>
-        res
-          .status(500)
-          .json({
-            error: "There was an error while saving the user to the database."
-          })
+        res.status(500).json({
+          error: "There was an error while saving the user to the database."
+        })
       );
 });
 
@@ -83,11 +83,9 @@ server.put("/api/users/:id", (req, res) => {
       .then(user => {
         console.log("In request");
         if (!user)
-          res
-            .status(404)
-            .json({
-              message: "The user with the specified ID does not exists. "
-            });
+          res.status(404).json({
+            message: "The user with the specified ID does not exists. "
+          });
         res.json(user);
       })
       .catch(err =>
@@ -97,6 +95,20 @@ server.put("/api/users/:id", (req, res) => {
       );
 });
 
-server.listen(8080, () => {
+// only runs in productions
+if (process.env.NODE_ENV === "production") {
+  // Express will serve up production assests
+  // like our main.js file or main.css
+  app.use(express.static("user-app/build"));
+
+  // Express will serve up the index.html file
+  // if it doesn't recognize the route
+  const path = require("path");
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "user-app", "build", "index.html"));
+  });
+}
+
+server.listen(PORT, () => {
   console.log("Starting server...");
 });
